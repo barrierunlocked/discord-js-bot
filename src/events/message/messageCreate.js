@@ -1,6 +1,7 @@
 const { commandHandler, automodHandler, statsHandler } = require("@src/handlers");
 const { PREFIX_COMMANDS } = require("@root/config");
 const { getSettings } = require("@schemas/Guild");
+const checkRateLimit = require('@handlers/ratelimit');
 
 /**
  * @param {import('@src/structures').BotClient} client
@@ -22,6 +23,10 @@ module.exports = async (client, message) => {
       const invoke = message.content.replace(`${settings.prefix}`, "").split(/\s+/)[0];
       const cmd = client.getCommand(invoke);
       if (cmd) {
+        // You can adjust the parameters below as per your requirement
+        const hasReachedLimit = await checkRateLimit(message.member, message.guild, 'command', 0.5, ['role1']);
+        if (hasReachedLimit) return message.channel.send('You are doing this too quickly, slow down!');
+
         isCommand = true;
         commandHandler.handlePrefixCommand(message, cmd, settings);
       }

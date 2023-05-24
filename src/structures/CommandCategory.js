@@ -66,7 +66,7 @@ module.exports = {
   OWNER: {
     name: "Owner",
     image: "https://www.pinclipart.com/picdir/middle/531-5318253_web-designing-icon-png-clipart.png",
-    emoji: "🤴",
+    emoji: "👑",
   },
   SOCIAL: {
     name: "Social",
@@ -89,11 +89,21 @@ module.exports = {
     name: "Ticket",
     enabled: config.TICKET.ENABLED,
     image: "https://icons.iconarchive.com/icons/custom-icon-design/flatastic-2/512/ticket-icon.png",
-    emoji: "🎫",
+    emoji: "🎟️",
   },
   UTILITY: {
     name: "Utility",
     image: "https://icons.iconarchive.com/icons/blackvariant/button-ui-system-folders-alt/128/Utilities-icon.png",
     emoji: "🛠",
   },
+  NSFW: {
+    name: "NSFW",
+    image: "https://icons.iconarchive.com/icons/iconka/buddy/128/catwoman-girl-icon.png",
+    emoji: "🔞",
+  },
+  MODSYSTEM: {
+    name: "Custom automod",
+    image: "https://icons.iconarchive.com/icons/zakar/japanicons/128/Kunai-icon.png",
+    emoji: "🛡️",
+  }  
 };

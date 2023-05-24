@@ -29,11 +29,6 @@ module.exports = {
         type: ApplicationCommandOptionType.Subcommand,
       },
       {
-        name: "stats",
-        description: "get bot's statistics",
-        type: ApplicationCommandOptionType.Subcommand,
-      },
-      {
         name: "uptime",
         description: "get bot's uptime",
         type: ApplicationCommandOptionType.Subcommand,
@@ -57,10 +52,6 @@ module.exports = {
     }
 
     // Stats
-    else if (sub === "stats") {
-      const response = botstats(interaction.client);
-      return interaction.followUp(response);
-    }
 
     // Uptime
     else if (sub === "uptime") {
