@@ -4,7 +4,7 @@ module.exports = {
   ADMIN: {
     name: "Admin",
     image: "https://icons.iconarchive.com/icons/dakirby309/simply-styled/256/Settings-icon.png",
-    emoji: "⚙️",
+    emoji: "🤓",
   },
   AUTOMOD: {
     name: "Automod",
@@ -15,13 +15,13 @@ module.exports = {
   ANIME: {
     name: "Anime",
     image: "https://wallpaperaccess.com/full/5680679.jpg",
-    emoji: "🎨",
+    emoji: "🤤",
   },
   ECONOMY: {
     name: "Economy",
     enabled: config.ECONOMY.ENABLED,
     image: "https://icons.iconarchive.com/icons/custom-icon-design/pretty-office-11/128/coins-icon.png",
-    emoji: "🪙",
+    emoji: "💸",
   },
   FUN: {
     name: "Fun",
@@ -55,23 +55,23 @@ module.exports = {
     name: "Moderation",
     enabled: config.MODERATION.ENABLED,
     image: "https://icons.iconarchive.com/icons/lawyerwordpress/law/128/Gavel-Law-icon.png",
-    emoji: "🔨",
+    emoji: "⚠️",
   },
   MUSIC: {
     name: "Music",
     enabled: config.MUSIC.ENABLED,
     image: "https://icons.iconarchive.com/icons/wwalczyszyn/iwindows/256/Music-Library-icon.png",
-    emoji: "🎵",
+    emoji: "🎧",
   },
   OWNER: {
     name: "Owner",
     image: "https://www.pinclipart.com/picdir/middle/531-5318253_web-designing-icon-png-clipart.png",
-    emoji: "🤴",
+    emoji: "👑",
   },
   SOCIAL: {
     name: "Social",
     image: "https://icons.iconarchive.com/icons/dryicons/aesthetica-2/128/community-users-icon.png",
-    emoji: "🫂",
+    emoji: "💕",
   },
   STATS: {
     name: "Statistics",
@@ -89,11 +89,21 @@ module.exports = {
     name: "Ticket",
     enabled: config.TICKET.ENABLED,
     image: "https://icons.iconarchive.com/icons/custom-icon-design/flatastic-2/512/ticket-icon.png",
-    emoji: "🎫",
+    emoji: "🎟️",
   },
   UTILITY: {
     name: "Utility",
     image: "https://icons.iconarchive.com/icons/blackvariant/button-ui-system-folders-alt/128/Utilities-icon.png",
-    emoji: "🛠",
+    emoji: "🦾",
   },
+  NSFW: {
+    name: "NSFW",
+    image: "https://icons.iconarchive.com/icons/iconka/buddy/128/catwoman-girl-icon.png",
+    emoji: "🫦",
+  },
+  MODSYSTEM: {
+    name: "Custom automod",
+    image: "https://icons.iconarchive.com/icons/zakar/japanicons/128/Kunai-icon.png",
+    emoji: "🛡️",
+  }  
 };

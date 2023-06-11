@@ -32,7 +32,9 @@ const parse = async (content, member, inviterData = {}) => {
       inviteData.tag = inviterId;
     }
   }
+
   return content
+    .replaceAll(/\\n/g, "\n")
     .replaceAll(/\\n/g, "\n")
     .replaceAll(/{server}/g, member.guild.name)
     .replaceAll(/{count}/g, member.guild.memberCount)
@@ -41,10 +43,12 @@ const parse = async (content, member, inviterData = {}) => {
     .replaceAll(/{member:dis}/g, member.user.discriminator)
     .replaceAll(/{member:tag}/g, member.user.tag)
     .replaceAll(/{member:avatar}/g, member.displayAvatarURL())
+    .replaceAll(/{member:mention}/g, member.toString())
     .replaceAll(/{inviter:name}/g, inviteData.name)
     .replaceAll(/{inviter:tag}/g, inviteData.tag)
     .replaceAll(/{invites}/g, getEffectiveInvites(inviterData.invite_data));
 };
+
 
 /**
  * @param {import('discord.js').GuildMember} member
@@ -55,29 +59,30 @@ const parse = async (content, member, inviterData = {}) => {
 const buildGreeting = async (member, type, config, inviterData) => {
   if (!config) return;
   let content;
+  let description = config.embed.description;
 
   // build content
   if (config.content) content = await parse(config.content, member, inviterData);
 
+  // parse description
+  if (description) description = await parse(description, member, inviterData);
+
   // build embed
   const embed = new EmbedBuilder();
-  if (config.embed.description) {
-    const parsed = await parse(config.embed.description, member, inviterData);
-    embed.setDescription(parsed);
-  }
+  if (description) embed.setDescription(description);
   if (config.embed.color) embed.setColor(config.embed.color);
   if (config.embed.thumbnail) embed.setThumbnail(member.user.displayAvatarURL());
   if (config.embed.footer) {
-    const parsed = await parse(config.embed.footer, member, inviterData);
-    embed.setFooter({ text: parsed });
+    const parsedFooter = await parse(config.embed.footer, member, inviterData);
+    embed.setFooter({ text: parsedFooter });
   }
   if (config.embed.image) {
-    const parsed = await parse(config.embed.image, member);
-    embed.setImage(parsed);
+    const parsedImage = await parse(config.embed.image, member);
+    embed.setImage(parsedImage);
   }
 
   // set default message
-  if (!config.content && !config.embed.description && !config.embed.footer) {
+  if (!content && !description && !config.embed.footer) {
     content =
       type === "WELCOME"
         ? `Welcome to the server, ${member.displayName} 🎉`

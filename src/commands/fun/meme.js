@@ -17,7 +17,7 @@ module.exports = {
   description: "get a random meme",
   category: "FUN",
   botPermissions: ["EmbedLinks"],
-  cooldown: 20,
+  cooldown: 10,
   command: {
     enabled: true,
     usage: "[category]",

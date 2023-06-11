@@ -30,5 +30,9 @@ module.exports = {
     TranslateLog: require("./schemas/TranslateLog").model,
     User: require("./schemas/User"),
     Suggestions: require("./schemas/Suggestions").model,
+    XpSettings: require("./schemas/XpSettings"),
+    RateLimitHistory: require("./schemas/RateLimitHistory"),
+    RateLimitSettings: require("./schemas/RateLimitSettings"),
+    Special: require("./schemas/Special"),
   },
 };

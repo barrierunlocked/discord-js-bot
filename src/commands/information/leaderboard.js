@@ -51,7 +51,7 @@ module.exports = {
     if (type === "xp") response = await getXpLeaderboard(message, message.author, data.settings);
     else if (type === "invite") response = await getInviteLeaderboard(message, message.author, data.settings);
     else if (type === "rep") response = await getRepLeaderboard(message.author);
-    else response = "Invalid Leaderboard type. Choose either `xp` or `invite`";
+    else response = "Invalid Leaderboard type. Choose either `xp`, `rep` or `invite`";
     await message.safeReply(response);
   },
 

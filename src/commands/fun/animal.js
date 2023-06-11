@@ -1,8 +1,9 @@
 const { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
 const { MESSAGES, EMBED_COLORS } = require("@root/config.js");
 const { getJson } = require("@helpers/HttpUtils");
+const animals = require('random-animals-api');
 
-const animals = ["cat", "dog", "panda", "fox", "red_panda", "koala", "bird", "raccoon", "kangaroo"];
+const animalTypes = ["dog", "bunny", "duck", "fox", "lizard", "shiba"];
 const BASE_URL = "https://some-random-api.ml/animal";
 
 /**
@@ -23,40 +24,51 @@ module.exports = {
     enabled: true,
     options: [
       {
-        name: "name",
+        name: "type",
         description: "animal type",
         type: ApplicationCommandOptionType.String,
         required: true,
-        choices: animals.map((animal) => ({ name: animal, value: animal })),
+        choices: animalTypes.map((type) => ({ name: type, value: type })),
       },
     ],
   },
 
   async messageRun(message, args) {
-    const choice = args[0];
-    if (!animals.includes(choice)) {
-      return message.safeReply(`Invalid animal selected. Available animals:\n${animals.join(", ")}`);
+    const choice = args[0].toLowerCase();
+    if (!animalTypes.includes(choice)) {
+      return message.safeReply(`Invalid animal type selected. Available types:\n${animalTypes.join(", ")}`);
     }
-    const response = await getAnimal(message.author, choice);
-    return message.safeReply(response);
+    const imageUrl = await getAnimalUrl(choice);
+    const embed = new EmbedBuilder()
+      .setColor(EMBED_COLORS.TRANSPARENT)
+      .setImage(imageUrl)
+      .setFooter({ text: `Requested by ${message.author.tag}` });
+
+    return message.safeReply({ embeds: [embed] });
   },
 
   async interactionRun(interaction) {
-    const choice = interaction.options.getString("name");
-    const response = await getAnimal(interaction.user, choice);
-    await interaction.followUp(response);
+    const choice = interaction.options.getString("type").toLowerCase();
+    const imageUrl = await getAnimalUrl(choice);
+    const embed = new EmbedBuilder()
+      .setColor(EMBED_COLORS.TRANSPARENT)
+      .setImage(imageUrl)
+      .setFooter({ text: `Requested by ${interaction.user.tag}` });
+
+    await interaction.followUp({ embeds: [embed] });
   },
 };
 
-async function getAnimal(user, choice) {
-  const response = await getJson(`${BASE_URL}/${choice}`);
-  if (!response.success) return MESSAGES.API_ERROR;
-
-  const imageUrl = response.data?.image;
-  const embed = new EmbedBuilder()
-    .setColor(EMBED_COLORS.TRANSPARENT)
-    .setImage(imageUrl)
-    .setFooter({ text: `Requested by ${user.tag}` });
-
-  return { embeds: [embed] };
+async function getAnimalUrl(type) {
+  const promise = new Promise((resolve, reject) => {
+    animals[type]()
+      .then((url) => {
+        resolve(url);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+  const url = await promise;
+  return url;
 }

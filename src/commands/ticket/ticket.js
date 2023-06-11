@@ -369,6 +369,12 @@ async function ticketModalSetup({ guild, channel, member }, targetChannel, setti
   await sentMsg.edit({ content: "Done! Ticket Message Created", components: [] });
 }
 
+
+
+
+
+
+
 async function setupLogChannel(target, settings) {
   if (!target.canSendEmbeds()) return `Oops! I do have have permission to send embed to ${target}`;
 

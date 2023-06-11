@@ -1,13 +1,16 @@
 const { commandHandler, automodHandler, statsHandler } = require("@src/handlers");
 const { PREFIX_COMMANDS } = require("@root/config");
 const { getSettings } = require("@schemas/Guild");
+const checkRateLimit = require('@handlers/ratelimit');
+const path = require('path');
+const fileNameWithoutExt = path.basename(__filename, path.extname(__filename));
 
 /**
  * @param {import('@src/structures').BotClient} client
  * @param {import('discord.js').Message} message
  */
 module.exports = async (client, message) => {
-  if (!message.guild || message.author.bot) return;
+  if (!message.guild) return;
   const settings = await getSettings(message.guild);
 
   // command handler
@@ -15,7 +18,8 @@ module.exports = async (client, message) => {
   if (PREFIX_COMMANDS.ENABLED) {
     // check for bot mentions
     if (message.content.includes(`${client.user.id}`)) {
-      message.channel.safeSend(`> My prefix is \`${settings.prefix}\``);
+      // Remove the response message
+      return;
     }
 
     if (message.content && message.content.startsWith(settings.prefix)) {
@@ -30,6 +34,13 @@ module.exports = async (client, message) => {
 
   // stats handler
   if (settings.stats.enabled) await statsHandler.trackMessageStats(message, isCommand, settings);
+  
+  const hasReachedLimit = await checkRateLimit(message.member || message.author, fileNameWithoutExt);
+
+  if (hasReachedLimit) {
+    // Remove the response message
+    return;
+  }
 
   // if not a command
   if (!isCommand) await automodHandler.performAutomod(message, settings);

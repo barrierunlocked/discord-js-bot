@@ -1,0 +1,44 @@
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
+const { verifyUser } = require('./verify');
+
+module.exports = {
+  name: 'verify',
+  description: 'Initiate the verification process',
+  execute: async (interaction) => {
+    const embed = new MessageEmbed()
+      .setTitle('🤖 Verification Required')
+      .setDescription('✅ Click the button below to get started.\n\n**Why do I need to verify?**\nWe require every user to verify to prevent raiding or malicious users.');
+
+    const row = new MessageActionRow()
+      .addComponents(
+        new MessageButton()
+          .setCustomId('verify_button')
+          .setStyle('SUCCESS')
+          .setLabel('Verify')
+          .setEmoji('✅')
+      );
+
+    await interaction.reply({ embeds: [embed], components: [row] });
+  },
+};
+
+const verifyButton = {
+  customId: 'verify_button',
+  async execute(interaction) {
+    await interaction.deferReply({ ephemeral: true });
+
+    const member = interaction.member;
+    const captchaWebhook = process.env.CAPTCHA_WEBHOOK;
+
+    if (!captchaWebhook) {
+      console.error('CAPTCHA_WEBHOOK is not defined in the environment variables.');
+      return interaction.editReply('Internal server error. Please try again later.');
+    }
+
+    await verifyUser(member, captchaWebhook);
+
+    // Other actions or responses after successful verification
+    await interaction.editReply('Verification successful!');
+  },
+};
+

@@ -48,7 +48,6 @@ async function getCovid(country) {
   if (response.status === 404) return "```css\nCountry with the provided name is not found```";
   if (!response.success) return MESSAGES.API_ERROR;
   const { data } = response;
-
   const mg = timestampToDate(data?.updated, "dd.MM.yyyy at HH:mm");
   const embed = new EmbedBuilder()
     .setTitle(`Covid - ${data?.country}`)

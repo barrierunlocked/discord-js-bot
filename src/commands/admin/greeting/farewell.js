@@ -1,13 +1,38 @@
 const { isHex } = require("@helpers/Utils");
 const { buildGreeting } = require("@handlers/greeting");
-const { ApplicationCommandOptionType, ChannelType } = require("discord.js");
+const {
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ModalBuilder,
+  TextInputBuilder,
+  ApplicationCommandOptionType,
+  ChannelType,
+  ButtonStyle,
+  TextInputStyle,
+  ComponentType,
+} = require("discord.js");
+const farewellMessage = "<:emoji_9:1115937617867976767>{server} <a:CH_IconArrowRight:715585320178941993>  Replaced with the name of the guild/server.\n" +
+"<:emoji_9:1115937617867976767> {count}: Replaced with the total member count of the guild.\n" +
+"<:emoji_9:1115937617867976767> {member:nick} <a:CH_IconArrowRight:715585320178941993> Replaced with the nickname of the member joining/leaving.\n" +
+"<:emoji_9:1115937617867976767> {member:name} <a:CH_IconArrowRight:715585320178941993> Replaced with the username of the member joining/leaving.\n" +
+"<:emoji_9:1115937617867976767> {member:dis} <a:CH_IconArrowRight:715585320178941993> Replaced with the discriminator (the four-digit number) of the member joining/leaving.\n" +
+"<:emoji_9:1115937617867976767> {member:tag} <a:CH_IconArrowRight:715585320178941993> Replaced with the username and discriminator (e.g., Username#1234) of the member joining/leaving.\n" +
+"<:emoji_9:1115937617867976767> {member:mention} <a:CH_IconArrowRight:715585320178941993> Replaced with the member mention of the member joining/leaving.\n" +
+"<:emoji_9:1115937617867976767> {member:avatar} <a:CH_IconArrowRight:715585320178941993> Replaced with the URL of the member's avatar image.\n" +
+"<:emoji_9:1115937617867976767> {inviter:name} <a:CH_IconArrowRight:715585320178941993> Replaced with the username of the inviter (if available).\n" +
+"<:emoji_9:1115937617867976767> {inviter:tag} <a:CH_IconArrowRight:715585320178941993> Replaced with the username and discriminator of the inviter (if available).\n" +
+"<:emoji_9:1115937617867976767> {invites} <a:CH_IconArrowRight:715585320178941993> Replaced with the effective number of invites for the inviter (tracked + added - fake - left).";
+
+
+
 
 /**
  * @type {import("@structures/Command")}
  */
 module.exports = {
   name: "farewell",
-  description: "setup farewell message",
+  description: "setup farewell  message",
   category: "ADMIN",
   userPermissions: ["ManageGuild"],
   command: {
@@ -20,31 +45,15 @@ module.exports = {
       },
       {
         trigger: "channel <#channel>",
-        description: "configure farewell message",
+        description: "configure farewell  message",
       },
       {
         trigger: "preview",
         description: "preview the configured farewell message",
       },
       {
-        trigger: "desc <text>",
-        description: "set embed description",
-      },
-      {
-        trigger: "thumbnail <ON|OFF>",
-        description: "enable/disable embed thumbnail",
-      },
-      {
-        trigger: "color <hexcolor>",
-        description: "set embed color",
-      },
-      {
-        trigger: "footer <text>",
-        description: "set embed footer content",
-      },
-      {
-        trigger: "image <url>",
-        description: "set embed image",
+        trigger: "message",
+        description: "configure farewell message",
       },
     ],
   },
@@ -95,79 +104,9 @@ module.exports = {
         ],
       },
       {
-        name: "desc",
-        description: "set embed description",
+        name: "message",
+        description: "configure farewell message",
         type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: "content",
-            description: "description content",
-            type: ApplicationCommandOptionType.String,
-            required: true,
-          },
-        ],
-      },
-      {
-        name: "thumbnail",
-        description: "configure embed thumbnail",
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: "status",
-            description: "thumbnail status",
-            type: ApplicationCommandOptionType.String,
-            required: true,
-            choices: [
-              {
-                name: "ON",
-                value: "ON",
-              },
-              {
-                name: "OFF",
-                value: "OFF",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: "color",
-        description: "set embed color",
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: "hex-code",
-            description: "hex color code",
-            type: ApplicationCommandOptionType.String,
-            required: true,
-          },
-        ],
-      },
-      {
-        name: "footer",
-        description: "set embed footer",
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: "content",
-            description: "footer content",
-            type: ApplicationCommandOptionType.String,
-            required: true,
-          },
-        ],
-      },
-      {
-        name: "image",
-        description: "set embed image",
-        type: ApplicationCommandOptionType.Subcommand,
-        options: [
-          {
-            name: "url",
-            description: "image url",
-            type: ApplicationCommandOptionType.String,
-            required: true,
-          },
-        ],
       },
     ],
   },
@@ -175,6 +114,7 @@ module.exports = {
   async messageRun(message, args, data) {
     const type = args[0].toLowerCase();
     const settings = data.settings;
+
     let response;
 
     // preview
@@ -196,43 +136,13 @@ module.exports = {
       response = await setChannel(settings, channel);
     }
 
-    // desc
-    else if (type === "desc") {
-      if (args.length < 2) return message.safeReply("Insufficient arguments! Please provide valid content");
-      const desc = args.slice(1).join(" ");
-      response = await setDescription(settings, desc);
+    // message
+    else if (type === "message") {
+      await interaction.followUp(farewellMessage)
+      await configureFarewellMessage(interaction, settings);
+      return;
     }
 
-    // thumbnail
-    else if (type === "thumbnail") {
-      const status = args[1]?.toUpperCase();
-      if (!status || !["ON", "OFF"].includes(status))
-        return message.safeReply("Invalid status. Value must be `on/off`");
-      response = await setThumbnail(settings, status);
-    }
-
-    // color
-    else if (type === "color") {
-      const color = args[1];
-      if (!color || !isHex(color)) return message.safeReply("Invalid color. Value must be a valid hex color");
-      response = await setColor(settings, color);
-    }
-
-    // footer
-    else if (type === "footer") {
-      if (args.length < 2) return message.safeReply("Insufficient arguments! Please provide valid content");
-      const content = args.slice(1).join(" ");
-      response = await setFooter(settings, content);
-    }
-
-    // image
-    else if (type === "image") {
-      const url = args[1];
-      if (!url) return message.safeReply("Invalid image url. Please provide a valid url");
-      response = await setImage(settings, url);
-    }
-
-    //
     else response = "Invalid command usage!";
     return message.safeReply(response);
   },
@@ -255,41 +165,27 @@ module.exports = {
         response = await setChannel(settings, interaction.options.getChannel("channel"));
         break;
 
-      case "desc":
-        response = await setDescription(settings, interaction.options.getString("content"));
-        break;
+      case "message":
+        await interaction.followUp(farewellMessage)
+        await configureFarewellMessage(interaction, settings);
+        return;
 
-      case "thumbnail":
-        response = await setThumbnail(settings, interaction.options.getString("status"));
-        break;
-
-      case "color":
-        response = await setColor(settings, interaction.options.getString("color"));
-        break;
-
-      case "footer":
-        response = await setFooter(settings, interaction.options.getString("content"));
-        break;
-
-      case "image":
-        response = await setImage(settings, interaction.options.getString("url"));
-        break;
 
       default:
         response = "Invalid subcommand";
     }
 
-    return interaction.followUp(response);
+    return await interaction.followUp(response);
   },
 };
 
 async function sendPreview(settings, member) {
-  if (!settings.farewell?.enabled) return "Farewell message not enabled in this server";
+  if (!settings.farewell?.enabled) return "farewell message not enabled in this server";
 
   const targetChannel = member.guild.channels.cache.get(settings.farewell.channel);
   if (!targetChannel) return "No channel is configured to send farewell message";
 
-  const response = await buildGreeting(member, "FAREWELL", settings.farewell);
+  const response = await buildGreeting(member, "farewell", settings.farewell);
   await targetChannel.safeSend(response);
 
   return `Sent farewell preview to ${targetChannel.toString()}`;
@@ -299,7 +195,7 @@ async function setStatus(settings, status) {
   const enabled = status.toUpperCase() === "ON" ? true : false;
   settings.farewell.enabled = enabled;
   await settings.save();
-  return `Configuration saved! Farewell message ${status ? "enabled" : "disabled"}`;
+  return `Configuration saved! farewell message ${enabled ? "enabled" : "disabled"}`;
 }
 
 async function setChannel(settings, channel) {
@@ -311,35 +207,153 @@ async function setChannel(settings, channel) {
   }
   settings.farewell.channel = channel.id;
   await settings.save();
-  return `Configuration saved! Farewell message will be sent to ${channel ? channel.toString() : "Not found"}`;
+  return `Configuration saved! farewell message will be sent to ${channel ? channel.toString() : "Not found"}`;
 }
 
-async function setDescription(settings, desc) {
-  settings.farewell.embed.description = desc;
-  await settings.save();
-  return "Configuration saved! Farewell message updated";
-}
 
-async function setThumbnail(settings, status) {
-  settings.farewell.embed.thumbnail = status.toUpperCase() === "ON" ? true : false;
-  await settings.save();
-  return "Configuration saved! Farewell message updated";
-}
 
-async function setColor(settings, color) {
-  settings.farewell.embed.color = color;
-  await settings.save();
-  return "Configuration saved! Farewell message updated";
-}
 
-async function setFooter(settings, content) {
-  settings.farewell.embed.footer = content;
-  await settings.save();
-  return "Configuration saved! Farewell message updated";
-}
 
-async function setImage(settings, url) {
-  settings.farewell.embed.image = url;
-  await settings.save();
-  return "Configuration saved! Farewell message updated";
+/**
+ * @param {import('discord.js').Message} param0
+ * @param {import('discord.js').GuildTextBasedChannel} targetChannel
+ * @param {object} settings
+ */
+async function configureFarewellMessage({ guild, channel, member }, settings) {
+  const existingSettings = settings.farewell;
+
+  // Create the button component
+  const buttonRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId("farewell_btnConfig").setLabel("Configure farewell Message").setStyle(ButtonStyle.Primary)
+  );
+
+  // Send the initial message with the button component
+  const sentMsg = await channel.safeSend({
+    content: "Please click the button below to setup ticket message",
+    components: [buttonRow],
+  });
+
+  if (!sentMsg) return;
+
+  // Wait for the button interaction
+  const btnInteraction = await channel
+    .awaitMessageComponent({
+      componentType: ComponentType.Button,
+      filter: (i) => i.customId === "farewell_btnConfig" && i.member.id === member.id && i.message.id === sentMsg.id,
+      time: 20000,
+    })
+    .catch((ex) => {});
+
+  if (!btnInteraction) return sentMsg.edit({ content: "No response received, farewell message configuration aborted.", components: [] });
+
+  await btnInteraction.showModal(
+    new ModalBuilder({
+      customId: "farewell-modalConfig",
+      title: "farewell Message Configuration",
+      components: [
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder()
+            .setCustomId("color")
+            .setLabel("Color")
+            .setStyle(TextInputStyle.Short)
+            .setRequired(false)
+            .setValue(existingSettings.embed.color ? existingSettings.embed.color : "")
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder()
+            .setCustomId("description")
+            .setLabel("Description")
+            .setStyle(TextInputStyle.Paragraph)
+            .setRequired(false)
+            .setValue(existingSettings.embed.description ? existingSettings.embed.description : "")
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder()
+            .setCustomId("thumbnail")
+            .setLabel("Thumbnail (ON/OFF)")
+            .setStyle(TextInputStyle.Short)
+            .setRequired(false)
+            .setValue(existingSettings.embed.thumbnail ? "ON" : "OFF")
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder()
+            .setCustomId("footer")
+            .setLabel("Footer")
+            .setStyle(TextInputStyle.Short)
+            .setRequired(false)
+            .setValue(existingSettings.embed.footer ? existingSettings.embed.footer : "")
+        ),
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder()
+            .setCustomId("image")
+            .setLabel("Image")
+            .setStyle(TextInputStyle.Short)
+            .setRequired(false)
+            .setValue(existingSettings.embed.image ? existingSettings.embed.image : "")
+        ),
+      ],
+    })
+  );
+
+
+
+
+  const modal = await btnInteraction
+    .awaitModalSubmit({
+      time: 15 * 60 * 1000,
+      filter: (m) => m.customId === "farewell-modalConfig" && m.member.id === member.id && m.message.id === sentMsg.id,
+    })
+    .catch((ex) => {});
+
+    
+  if (!modal) return sentMsg.edit({ content: "No response received, cancelling setup", components: [] });
+
+  await modal.reply("Updating farewell message configuration...");
+
+  const color = modal.fields.getTextInputValue("color");
+  if (color && isHex(color)) {
+    settings.farewell.embed.color = color;
+    await settings.save();
+  } else {
+    return "Invalid color input or no color provided. farewell message configuration aborted.";
+  }
+
+  const description = modal.fields.getTextInputValue("description");
+  if (description) {
+    settings.farewell.embed.description = description;
+    await settings.save();
+  } else {
+    return "No description provided. farewell message configuration aborted.";
+  }
+
+  const thumbnailStatus = modal.fields.getTextInputValue("thumbnail")?.toLowerCase();
+  if (thumbnailStatus === "on") {
+    settings.farewell.embed.thumbnail = true;
+    await settings.save();
+  } else if (thumbnailStatus === "off") {
+    settings.farewell.embed.thumbnail = false;
+    await settings.save();
+  } else {
+    return "Invalid thumbnail status provided. farewell message configuration aborted.";
+  }
+
+  const footer = modal.fields.getTextInputValue("footer");
+  if (footer) {
+    settings.farewell.embed.footer = footer;
+    await settings.save();
+  } else {
+    return "No footer provided. farewell message configuration aborted.";
+  }
+
+  const image = modal.fields.getTextInputValue("image");
+  if (image) {
+    settings.farewell.embed.image = image;
+    await settings.save();
+  } else {
+    return "No image provided. farewell message configuration aborted.";
+  }
+
+ 
+  await modal.deleteReply();
+  await sentMsg.edit({ content: "Done! farewell Message Saved", components: [] });
 }
